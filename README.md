@@ -8,14 +8,14 @@ GitHub Pagesでホスティングされています。
 
 ### ダウンロードページ
 
-https://YOUR_USERNAME.github.io/japan-holidays-data/
+https://cti1650.github.io/japan-holidays-data/
 
 ### 直リンク
 
 | 形式 | URL |
 |------|-----|
-| CSV (UTF-8 BOM) | `https://YOUR_USERNAME.github.io/japan-holidays-data/holidays.csv` |
-| JSON | `https://YOUR_USERNAME.github.io/japan-holidays-data/holidays.json` |
+| CSV (UTF-8 BOM) | `https://cti1650.github.io/japan-holidays-data/holidays.csv` |
+| JSON | `https://cti1650.github.io/japan-holidays-data/holidays.json` |
 
 ## データ形式
 
@@ -39,6 +39,13 @@ https://YOUR_USERNAME.github.io/japan-holidays-data/
 ## 自動更新
 
 GitHub Actionsにより毎週月曜日に内閣府のデータをチェックし、差分があれば自動でPRを作成・マージします。
+
+### フォーマットチェック
+
+更新時に以下のバリデーションを実行し、フォーマットが変更されていた場合はエラーで中止します。
+
+- ヘッダー行が `国民の祝日・休日月日,国民の祝日・休日名称` であること
+- 日付が `YYYY/M/D` 形式であること
 
 ## データソース
 
