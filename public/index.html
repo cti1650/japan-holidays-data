@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>日本の祝日データ | Japan Holidays Data</title>
+    <meta
+      name="description"
+      content="日本の祝日データをUTF-8形式のCSVとJSONで提供しています。内閣府の祝日データを自動変換して配信。"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <div class="max-w-2xl mx-auto px-4 py-12">
+      <header class="text-center mb-12">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">
+          日本の祝日データ
+        </h1>
+        <p class="text-gray-600">Japan Holidays Data</p>
+      </header>
+
+      <main>
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">
+            ダウンロード
+          </h2>
+          <div class="space-y-4">
+            <a
+              href="./holidays.csv"
+              download
+              class="flex items-center justify-between p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors"
+            >
+              <div>
+                <span class="font-medium text-blue-900">holidays.csv</span>
+                <p class="text-sm text-blue-700">UTF-8 BOM付き CSV形式</p>
+              </div>
+              <svg
+                class="w-6 h-6 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+            </a>
+            <a
+              href="./holidays.json"
+              download
+              class="flex items-center justify-between p-4 bg-green-50 hover:bg-green-100 rounded-lg transition-colors"
+            >
+              <div>
+                <span class="font-medium text-green-900">holidays.json</span>
+                <p class="text-sm text-green-700">JSON形式</p>
+              </div>
+              <svg
+                class="w-6 h-6 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+            </a>
+          </div>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6 mb-8">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">直リンク</h2>
+          <div class="space-y-3 text-sm">
+            <div class="p-3 bg-gray-100 rounded font-mono break-all">
+              <span id="csv-url"></span>
+            </div>
+            <div class="p-3 bg-gray-100 rounded font-mono break-all">
+              <span id="json-url"></span>
+            </div>
+          </div>
+          <p class="text-xs text-gray-500 mt-3">
+            直接URLでアクセスしてデータを取得できます
+          </p>
+        </section>
+
+        <section class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-semibold text-gray-800 mb-4">データ形式</h2>
+          <div class="space-y-4">
+            <div>
+              <h3 class="font-medium text-gray-700 mb-2">CSV</h3>
+              <pre class="p-3 bg-gray-100 rounded text-sm overflow-x-auto">国民の祝日・休日月日,国民の祝日・休日名称
+1955/1/1,元日
+1955/1/15,成人の日
+...</pre>
+            </div>
+            <div>
+              <h3 class="font-medium text-gray-700 mb-2">JSON</h3>
+              <pre class="p-3 bg-gray-100 rounded text-sm overflow-x-auto">[
+  { "date": "1955/1/1", "name": "元日" },
+  { "date": "1955/1/15", "name": "成人の日" },
+  ...
+]</pre>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="mt-12 text-center text-sm text-gray-500">
+        <p class="mb-2">
+          データソース:
+          <a
+            href="https://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-blue-600 hover:underline"
+            >内閣府「国民の祝日」について</a
+          >
+        </p>
+        <p>毎週自動更新</p>
+      </footer>
+    </div>
+
+    <script>
+      const baseUrl = window.location.origin + window.location.pathname.replace(/\/$/, '');
+      document.getElementById('csv-url').textContent = baseUrl + '/holidays.csv';
+      document.getElementById('json-url').textContent = baseUrl + '/holidays.json';
+    </script>
+  </body>
+</html>
