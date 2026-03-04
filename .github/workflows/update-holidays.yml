@@ -13,6 +13,8 @@ permissions:
 jobs:
   update:
     runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.fetch.outputs.status }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -29,20 +31,23 @@ jobs:
       - name: Fetch and convert holidays data
         id: fetch
         run: |
+          set +e
           npm run fetch
           EXIT_CODE=$?
+          set -e
           if [ $EXIT_CODE -eq 0 ]; then
-            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "status=changed" >> $GITHUB_OUTPUT
           elif [ $EXIT_CODE -eq 1 ]; then
-            echo "No changes detected"
-            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "::notice::No changes detected - skipping"
+            echo "status=skipped" >> $GITHUB_OUTPUT
           else
-            echo "Error occurred (exit code: $EXIT_CODE)"
+            echo "::error::Error occurred (exit code: $EXIT_CODE)"
+            echo "status=error" >> $GITHUB_OUTPUT
             exit $EXIT_CODE
           fi
 
       - name: Create Pull Request
-        if: steps.fetch.outputs.changed == 'true'
+        if: steps.fetch.outputs.status == 'changed'
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -59,6 +64,7 @@ jobs:
 
   automerge:
     needs: update
+    if: needs.update.outputs.status == 'changed'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
