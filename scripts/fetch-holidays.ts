@@ -5,6 +5,9 @@ import iconv from "iconv-lite";
 const CSV_URL = "https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv";
 const PUBLIC_DIR = join(import.meta.dirname, "..", "public");
 
+const EXPECTED_HEADER = "国民の祝日・休日月日,国民の祝日・休日名称";
+const DATE_PATTERN = /^\d{4}\/\d{1,2}\/\d{1,2}$/;
+
 interface Holiday {
   date: string;
   name: string;
@@ -23,19 +26,48 @@ function convertToUtf8(buffer: Buffer): string {
   return iconv.decode(buffer, "Shift_JIS");
 }
 
+function validateHeader(headerLine: string): void {
+  const header = headerLine.trim();
+  if (header !== EXPECTED_HEADER) {
+    throw new Error(
+      `CSV format changed! Expected header: "${EXPECTED_HEADER}", got: "${header}"`
+    );
+  }
+}
+
+function validateDateFormat(date: string, lineNumber: number): void {
+  if (!DATE_PATTERN.test(date)) {
+    throw new Error(
+      `Invalid date format at line ${lineNumber}: "${date}" (expected YYYY/M/D)`
+    );
+  }
+}
+
 function parseCsv(csvContent: string): Holiday[] {
   const lines = csvContent.trim().split("\n");
   const holidays: Holiday[] = [];
 
-  // Skip header row
+  if (lines.length === 0) {
+    throw new Error("CSV is empty");
+  }
+
+  validateHeader(lines[0]);
+
   for (let i = 1; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line) continue;
 
     const [date, name] = line.split(",").map((s) => s.trim());
-    if (date && name) {
-      holidays.push({ date, name });
+    if (!date || !name) {
+      throw new Error(`Invalid data at line ${i + 1}: "${line}"`);
     }
+
+    validateDateFormat(date, i + 1);
+    holidays.push({ date, name });
+  }
+
+  if (holidays.length === 0) {
+    throw new Error("No holiday data found in CSV");
   }
 
   return holidays;

@@ -20,7 +20,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: "npm"
 
       - name: Install dependencies
@@ -29,8 +29,17 @@ jobs:
       - name: Fetch and convert holidays data
         id: fetch
         run: |
-          npm run fetch && echo "changed=true" >> $GITHUB_OUTPUT || echo "changed=false" >> $GITHUB_OUTPUT
-        continue-on-error: true
+          npm run fetch
+          EXIT_CODE=$?
+          if [ $EXIT_CODE -eq 0 ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          elif [ $EXIT_CODE -eq 1 ]; then
+            echo "No changes detected"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "Error occurred (exit code: $EXIT_CODE)"
+            exit $EXIT_CODE
+          fi
 
       - name: Create Pull Request
         if: steps.fetch.outputs.changed == 'true'
