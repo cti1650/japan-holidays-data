@@ -101,11 +101,33 @@
         <section class="bg-white rounded-lg shadow-md p-6 mb-8">
           <h2 class="text-xl font-semibold text-gray-800 mb-4">直リンク</h2>
           <div class="space-y-3 text-sm">
-            <div class="p-3 bg-gray-100 rounded font-mono break-all">
-              <span id="csv-url"></span>
+            <div class="relative">
+              <div class="p-3 pr-12 bg-gray-100 rounded font-mono break-all">
+                <span id="csv-url"></span>
+              </div>
+              <button
+                onclick="copyToClipboard('csv-url')"
+                class="absolute top-1/2 -translate-y-1/2 right-2 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded transition-colors"
+                title="コピー"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
             </div>
-            <div class="p-3 bg-gray-100 rounded font-mono break-all">
-              <span id="json-url"></span>
+            <div class="relative">
+              <div class="p-3 pr-12 bg-gray-100 rounded font-mono break-all">
+                <span id="json-url"></span>
+              </div>
+              <button
+                onclick="copyToClipboard('json-url')"
+                class="absolute top-1/2 -translate-y-1/2 right-2 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded transition-colors"
+                title="コピー"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
             </div>
           </div>
           <p class="text-xs text-gray-500 mt-3">
@@ -177,6 +199,23 @@
     </div>
 
     <script>
+      function copyToClipboard(elementId) {
+        const text = document.getElementById(elementId).textContent;
+        const btn = event.currentTarget;
+        const svg = btn.querySelector('svg');
+        const originalPath = svg.innerHTML;
+
+        navigator.clipboard.writeText(text).then(function() {
+          svg.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />';
+          btn.classList.add('text-green-500');
+
+          setTimeout(function() {
+            svg.innerHTML = originalPath;
+            btn.classList.remove('text-green-500');
+          }, 1500);
+        });
+      }
+
       const pathname = window.location.pathname.replace(/\/[^/]*\.[^/]*$/, '').replace(/\/$/, '');
       const baseUrl = window.location.origin + pathname;
       document.getElementById('csv-url').textContent = baseUrl + '/holidays.csv';
