@@ -152,6 +152,19 @@ function toIcalDate(dateStr: string): string {
   return `${y}${pad2(m)}${pad2(d)}`;
 }
 
+function toIsoDate(dateStr: string): string {
+  const [y, m, d] = dateStr.split("/").map(Number);
+  return `${y}-${pad2(m)}-${pad2(d)}`;
+}
+
+function buildIsoCsv(holidays: Holiday[]): string {
+  const lines = [EXPECTED_HEADER];
+  for (const h of holidays) {
+    lines.push(`${toIsoDate(h.date)},${h.name}`);
+  }
+  return lines.join("\n") + "\n";
+}
+
 function toIcalDatePlusOne(dateStr: string): string {
   const [y, m, d] = dateStr.split("/").map(Number);
   const next = new Date(Date.UTC(y, m - 1, d + 1));
@@ -382,6 +395,8 @@ async function main() {
 
     const csvPath = join(PUBLIC_DIR, "holidays.csv");
     const jsonPath = join(PUBLIC_DIR, "holidays.json");
+    const isoCsvPath = join(PUBLIC_DIR, "holidays-iso.csv");
+    const isoJsonPath = join(PUBLIC_DIR, "holidays-iso.json");
     const icalPath = join(PUBLIC_DIR, "holidays.ics");
     const icalRecentPath = join(PUBLIC_DIR, "holidays-recent.ics");
     const changesPath = join(PUBLIC_DIR, "changes.json");
@@ -407,6 +422,13 @@ async function main() {
 
     const csvBuffer = createUtf8BomCsv(utf8Content);
     const jsonContent = JSON.stringify(newHolidays, null, 2);
+
+    const isoHolidays = newHolidays.map((h) => ({
+      date: toIsoDate(h.date),
+      name: h.name,
+    }));
+    const isoCsvBuffer = createUtf8BomCsv(buildIsoCsv(newHolidays));
+    const isoJsonContent = JSON.stringify(isoHolidays, null, 2);
     const icalFull = generateIcal(
       newHolidays,
       dtstamp,
@@ -434,6 +456,8 @@ async function main() {
     const writes: Array<{ path: string; content: Buffer | string }> = [
       { path: csvPath, content: csvBuffer },
       { path: jsonPath, content: jsonContent },
+      { path: isoCsvPath, content: isoCsvBuffer },
+      { path: isoJsonPath, content: isoJsonContent },
       { path: icalPath, content: icalFull },
       { path: icalRecentPath, content: icalRecent },
       { path: changesPath, content: changesJson },

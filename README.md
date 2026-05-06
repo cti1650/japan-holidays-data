@@ -16,6 +16,8 @@ https://cti1650.github.io/japan-holidays-data/
 |------|-----|
 | CSV (UTF-8 BOM) | `https://cti1650.github.io/japan-holidays-data/holidays.csv` |
 | JSON | `https://cti1650.github.io/japan-holidays-data/holidays.json` |
+| CSV (ISO 8601日付) | `https://cti1650.github.io/japan-holidays-data/holidays-iso.csv` |
+| JSON (ISO 8601日付) | `https://cti1650.github.io/japan-holidays-data/holidays-iso.json` |
 | iCal (全データ) | `https://cti1650.github.io/japan-holidays-data/holidays.ics` |
 | iCal (直近±2年) | `https://cti1650.github.io/japan-holidays-data/holidays-recent.ics` |
 | Atom (更新履歴) | `https://cti1650.github.io/japan-holidays-data/feed.xml` |
@@ -38,6 +40,23 @@ iCalのURLはGoogleカレンダー / Appleカレンダー等の「URLでカレ�
 [
   { "date": "1955/1/1", "name": "元日" },
   { "date": "1955/1/15", "name": "成人の日" }
+]
+```
+
+### ISO 8601 日付版
+
+`holidays-iso.csv` / `holidays-iso.json` は、日付を ISO 8601 形式 (`YYYY-MM-DD`) にした派生ファイルです。プログラムでのパース・ソートが容易で、国際標準にも準拠します。
+
+```csv
+国民の祝日・休日月日,国民の祝日・休日名称
+1955-01-01,元日
+1955-01-15,成人の日
+```
+
+```json
+[
+  { "date": "1955-01-01", "name": "元日" },
+  { "date": "1955-01-15", "name": "成人の日" }
 ]
 ```
 
