@@ -72,6 +72,74 @@
               </svg>
             </a>
             <a
+              href="./holidays.ics"
+              download
+              class="flex items-center justify-between p-4 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors"
+            >
+              <div>
+                <span class="font-medium text-amber-900">holidays.ics</span>
+                <p class="text-sm text-amber-700">iCal形式（全データ）</p>
+              </div>
+              <svg
+                class="w-6 h-6 text-amber-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            </a>
+            <a
+              href="./holidays-recent.ics"
+              download
+              class="flex items-center justify-between p-4 bg-orange-50 hover:bg-orange-100 rounded-lg transition-colors"
+            >
+              <div>
+                <span class="font-medium text-orange-900">holidays-recent.ics</span>
+                <p class="text-sm text-orange-700">iCal形式（直近±2年）</p>
+              </div>
+              <svg
+                class="w-6 h-6 text-orange-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                />
+              </svg>
+            </a>
+            <a
+              href="./feed.xml"
+              class="flex items-center justify-between p-4 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+            >
+              <div>
+                <span class="font-medium text-indigo-900">feed.xml</span>
+                <p class="text-sm text-indigo-700">Atomフィード（更新履歴）</p>
+              </div>
+              <svg
+                class="w-6 h-6 text-indigo-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 11a9 9 0 019 9M4 4a16 16 0 0116 16M6 19a1 1 0 11-2 0 1 1 0 012 0z"
+                />
+              </svg>
+            </a>
+            <a
               href="https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv"
               target="_blank"
               rel="noopener noreferrer"
@@ -129,9 +197,51 @@
                 </svg>
               </button>
             </div>
+            <div class="relative">
+              <div class="p-3 pr-12 bg-gray-100 rounded font-mono break-all">
+                <span id="ics-url"></span>
+              </div>
+              <button
+                onclick="copyToClipboard('ics-url')"
+                class="absolute top-1/2 -translate-y-1/2 right-2 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded transition-colors"
+                title="コピー"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
+            </div>
+            <div class="relative">
+              <div class="p-3 pr-12 bg-gray-100 rounded font-mono break-all">
+                <span id="ics-recent-url"></span>
+              </div>
+              <button
+                onclick="copyToClipboard('ics-recent-url')"
+                class="absolute top-1/2 -translate-y-1/2 right-2 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded transition-colors"
+                title="コピー"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
+            </div>
+            <div class="relative">
+              <div class="p-3 pr-12 bg-gray-100 rounded font-mono break-all">
+                <span id="feed-url"></span>
+              </div>
+              <button
+                onclick="copyToClipboard('feed-url')"
+                class="absolute top-1/2 -translate-y-1/2 right-2 p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded transition-colors"
+                title="コピー"
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </button>
+            </div>
           </div>
           <p class="text-xs text-gray-500 mt-3">
-            直接URLでアクセスしてデータを取得できます
+            直接URLでアクセスしてデータを取得できます。iCalはカレンダーアプリの購読URLとしても利用可能です
           </p>
         </section>
 
@@ -220,6 +330,9 @@
       const baseUrl = window.location.origin + pathname;
       document.getElementById('csv-url').textContent = baseUrl + '/holidays.csv';
       document.getElementById('json-url').textContent = baseUrl + '/holidays.json';
+      document.getElementById('ics-url').textContent = baseUrl + '/holidays.ics';
+      document.getElementById('ics-recent-url').textContent = baseUrl + '/holidays-recent.ics';
+      document.getElementById('feed-url').textContent = baseUrl + '/feed.xml';
     </script>
   </body>
 </html>
