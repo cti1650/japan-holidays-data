@@ -4,12 +4,15 @@
   <link href="https://cti1650.github.io/japan-holidays-data/feed.xml" rel="self"/>
   <link href="https://cti1650.github.io/japan-holidays-data/"/>
   <id>https://cti1650.github.io/japan-holidays-data/</id>
-  <updated>2026-05-06T12:00:00.000Z</updated>
+  <updated>2026-05-06T11:39:42.936Z</updated>
   <author><name>japan-holidays-data</name></author>
   <entry>
     <title>Atomフィード配信を開始しました</title>
-    <id>urn:japan-holidays-data:release:2026-05-06T12:00:00.000Z</id>
-    <updated>2026-05-06T12:00:00.000Z</updated>
+    <link rel="alternate" type="text/html" href="https://cti1650.github.io/japan-holidays-data/"/>
+    <id>urn:japan-holidays-data:release:2026-05-06T11:39:42.936Z</id>
+    <updated>2026-05-06T11:39:42.936Z</updated>
+    <published>2026-05-06T11:39:42.936Z</published>
+    <author><name>japan-holidays-data</name></author>
     <category term="release"/>
     <summary type="text">祝日データの更新履歴を Atom フィード (feed.xml) で配信します。内閣府の祝日データに追加・変更・削除があった際に、新しいエントリーが自動で追加されます。お使いの RSS リーダーでこのフィードを購読しておくと、翌年分の祝日が公表されたタイミング等で通知を受け取れます。</summary>
     <content type="html"><![CDATA[<p>祝日データの更新履歴を Atom フィード (feed.xml) で配信します。内閣府の祝日データに追加・変更・削除があった際に、新しいエントリーが自動で追加されます。お使いの RSS リーダーでこのフィードを購読しておくと、翌年分の祝日が公表されたタイミング等で通知を受け取れます。</p>]]></content>

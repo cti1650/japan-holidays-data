@@ -379,8 +379,11 @@ function buildChangeEntryXml(c: ChangeEntry): string[] {
   const lines: string[] = [
     `  <entry>`,
     `    <title>${escapeXml(title)}</title>`,
+    `    <link rel="alternate" type="text/html" href="${SITE_URL}"/>`,
     `    <id>urn:japan-holidays-data:change:${c.timestamp}</id>`,
     `    <updated>${c.timestamp}</updated>`,
+    `    <published>${c.timestamp}</published>`,
+    `    <author><name>japan-holidays-data</name></author>`,
   ];
   for (const cat of categories) {
     lines.push(`    <category term="${cat}"/>`);
@@ -398,8 +401,11 @@ function buildReleaseEntryXml(r: ReleaseEntry): string[] {
   return [
     `  <entry>`,
     `    <title>${escapeXml(r.title)}</title>`,
+    `    <link rel="alternate" type="text/html" href="${SITE_URL}"/>`,
     `    <id>urn:japan-holidays-data:release:${r.timestamp}</id>`,
     `    <updated>${r.timestamp}</updated>`,
+    `    <published>${r.timestamp}</published>`,
+    `    <author><name>japan-holidays-data</name></author>`,
     `    <category term="release"/>`,
     `    <summary type="text">${escapeXml(r.description)}</summary>`,
     `    <content type="html">${wrapCdata(html)}</content>`,
