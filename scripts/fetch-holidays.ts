@@ -25,6 +25,12 @@ interface ChangeEntry extends HolidayDiff {
   timestamp: string;
 }
 
+interface ReleaseEntry {
+  timestamp: string;
+  title: string;
+  description: string;
+}
+
 async function fetchCsv(): Promise<Buffer> {
   console.log(`Fetching CSV from ${CSV_URL}...`);
   const response = await fetch(CSV_URL);
@@ -357,8 +363,61 @@ function wrapCdata(s: string): string {
   return `<![CDATA[${s.replace(/\]\]>/g, "]]]]><![CDATA[>")}]]>`;
 }
 
-function generateAtomFeed(changes: ChangeEntry[]): string {
-  const updated = changes[0]?.timestamp ?? "1970-01-01T00:00:00.000Z";
+type FeedItem =
+  | { kind: "change"; entry: ChangeEntry }
+  | { kind: "release"; entry: ReleaseEntry };
+
+function buildChangeEntryXml(c: ChangeEntry): string[] {
+  const title = buildEntryTitle(c);
+  const summary = buildEntrySummary(c);
+  const html = buildEntryHtml(c);
+  const categories: string[] = [];
+  if (c.added.length) categories.push("added");
+  if (c.removed.length) categories.push("removed");
+  if (c.modified.length) categories.push("modified");
+
+  const lines: string[] = [
+    `  <entry>`,
+    `    <title>${escapeXml(title)}</title>`,
+    `    <id>urn:japan-holidays-data:change:${c.timestamp}</id>`,
+    `    <updated>${c.timestamp}</updated>`,
+  ];
+  for (const cat of categories) {
+    lines.push(`    <category term="${cat}"/>`);
+  }
+  lines.push(
+    `    <summary type="text">${escapeXml(summary)}</summary>`,
+    `    <content type="html">${wrapCdata(html)}</content>`,
+    `  </entry>`
+  );
+  return lines;
+}
+
+function buildReleaseEntryXml(r: ReleaseEntry): string[] {
+  const html = `<p>${escapeXml(r.description)}</p>`;
+  return [
+    `  <entry>`,
+    `    <title>${escapeXml(r.title)}</title>`,
+    `    <id>urn:japan-holidays-data:release:${r.timestamp}</id>`,
+    `    <updated>${r.timestamp}</updated>`,
+    `    <category term="release"/>`,
+    `    <summary type="text">${escapeXml(r.description)}</summary>`,
+    `    <content type="html">${wrapCdata(html)}</content>`,
+    `  </entry>`,
+  ];
+}
+
+function generateAtomFeed(
+  changes: ChangeEntry[],
+  releases: ReleaseEntry[]
+): string {
+  const items: FeedItem[] = [
+    ...changes.map((c) => ({ kind: "change" as const, entry: c })),
+    ...releases.map((r) => ({ kind: "release" as const, entry: r })),
+  ];
+  items.sort((a, b) => b.entry.timestamp.localeCompare(a.entry.timestamp));
+
+  const updated = items[0]?.entry.timestamp ?? "1970-01-01T00:00:00.000Z";
   const lines: string[] = [
     `<?xml version="1.0" encoding="UTF-8"?>`,
     `<feed xmlns="http://www.w3.org/2005/Atom">`,
@@ -369,29 +428,12 @@ function generateAtomFeed(changes: ChangeEntry[]): string {
     `  <updated>${updated}</updated>`,
     `  <author><name>japan-holidays-data</name></author>`,
   ];
-  for (const c of changes) {
-    const title = buildEntryTitle(c);
-    const summary = buildEntrySummary(c);
-    const html = buildEntryHtml(c);
-    const categories: string[] = [];
-    if (c.added.length) categories.push("added");
-    if (c.removed.length) categories.push("removed");
-    if (c.modified.length) categories.push("modified");
-
-    lines.push(
-      `  <entry>`,
-      `    <title>${escapeXml(title)}</title>`,
-      `    <id>urn:japan-holidays-data:change:${c.timestamp}</id>`,
-      `    <updated>${c.timestamp}</updated>`
-    );
-    for (const cat of categories) {
-      lines.push(`    <category term="${cat}"/>`);
+  for (const item of items) {
+    if (item.kind === "change") {
+      lines.push(...buildChangeEntryXml(item.entry));
+    } else {
+      lines.push(...buildReleaseEntryXml(item.entry));
     }
-    lines.push(
-      `    <summary type="text">${escapeXml(summary)}</summary>`,
-      `    <content type="html">${wrapCdata(html)}</content>`,
-      `  </entry>`
-    );
   }
   lines.push(`</feed>`);
   return lines.join("\n");
@@ -412,11 +454,13 @@ async function main() {
     const icalPath = join(PUBLIC_DIR, "holidays.ics");
     const icalRecentPath = join(PUBLIC_DIR, "holidays-recent.ics");
     const changesPath = join(PUBLIC_DIR, "changes.json");
+    const releasesPath = join(PUBLIC_DIR, "releases.json");
     const feedPath = join(PUBLIC_DIR, "feed.xml");
 
     const oldHolidays = readJsonSafe<Holiday[]>(jsonPath, []);
     const diff = computeDiff(oldHolidays, newHolidays);
     const existingChanges = readJsonSafe<ChangeEntry[]>(changesPath, []);
+    const releases = readJsonSafe<ReleaseEntry[]>(releasesPath, []);
 
     let changes = existingChanges;
     if (!isDiffEmpty(diff)) {
@@ -463,7 +507,7 @@ async function main() {
     );
 
     const changesJson = JSON.stringify(changes, null, 2);
-    const atom = generateAtomFeed(changes);
+    const atom = generateAtomFeed(changes, releases);
 
     const writes: Array<{ path: string; content: Buffer | string }> = [
       { path: csvPath, content: csvBuffer },
