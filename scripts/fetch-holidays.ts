@@ -458,7 +458,7 @@ async function main() {
     const icalRecent = generateIcal(
       recent,
       dtstamp,
-      `日本の祝日 (${minYear}-${maxYear})`,
+      `日本の祝日（直近${RECENT_YEARS_RANGE * 2 + 1}年分）`,
       `直近${RECENT_YEARS_RANGE * 2 + 1}年分の国民の祝日データ`
     );
 
