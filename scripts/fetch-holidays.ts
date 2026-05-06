@@ -177,6 +177,15 @@ function isoToIcalDtstamp(iso: string): string {
   return iso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 }
 
+function readExistingDtstamp(filePath: string): string | null {
+  if (!existsSync(filePath)) return null;
+  const content = readFileSync(filePath, "utf-8");
+  const match = content.match(/^DTSTAMP:(\d{8}T\d{6}Z)$/m);
+  if (!match) return null;
+  if (match[1] === "19700101T000000Z") return null;
+  return match[1];
+}
+
 function escapeIcalText(s: string): string {
   return s
     .replace(/\\/g, "\\\\")
@@ -210,6 +219,9 @@ function generateIcal(
       `DTSTAMP:${dtstamp}`,
       `DTSTART;VALUE=DATE:${start}`,
       `DTEND;VALUE=DATE:${end}`,
+      "CLASS:PUBLIC",
+      "STATUS:CONFIRMED",
+      "SEQUENCE:0",
       `SUMMARY:${escapeIcalText(h.name)}`,
       "TRANSP:TRANSPARENT",
       "END:VEVENT"
@@ -415,10 +427,10 @@ async function main() {
       changes = [entry, ...existingChanges];
     }
 
-    const dtstamp =
-      changes.length > 0
-        ? isoToIcalDtstamp(changes[0].timestamp)
-        : "19700101T000000Z";
+    const nowDtstamp = isoToIcalDtstamp(new Date().toISOString());
+    const dtstamp = isDiffEmpty(diff)
+      ? readExistingDtstamp(icalPath) ?? nowDtstamp
+      : nowDtstamp;
 
     const csvBuffer = createUtf8BomCsv(utf8Content);
     const jsonContent = JSON.stringify(newHolidays, null, 2);
