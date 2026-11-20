@@ -1,25 +1,22 @@
-name: Dependabot Auto Merge
+name: CI
 
-# Dependabot の minor / patch 更新を検証後に自動マージする。
+# すべての PR でテストを実行し、Dependabot の minor / patch 更新はテスト通過後に自動マージする。
 # 定期的にコミットが発生することで、60日間の無活動による
 # update-holidays (schedule) の自動停止を防ぐ目的も兼ねる。
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
-  auto-merge:
-    if: github.actor == 'dependabot[bot]'
+  test:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v2
-
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -35,6 +32,9 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
+      - name: Test
+        run: npm test
+
       - name: Verify fetch script
         run: |
           set +e
@@ -46,6 +46,18 @@ jobs:
             echo "::error::fetch script failed (exit code: $EXIT_CODE)"
             exit $EXIT_CODE
           fi
+
+  dependabot-auto-merge:
+    needs: test
+    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
 
       - name: Merge minor / patch updates
         if: steps.metadata.outputs.update-type != 'version-update:semver-major'

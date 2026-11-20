@@ -1,5 +1,5 @@
 import { writeFileSync, readFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import iconv from "iconv-lite";
 
 const CSV_URL = "https://www8.cao.go.jp/chosei/shukujitsu/syukujitsu.csv";
@@ -10,22 +10,22 @@ const RECENT_YEARS_RANGE = 2;
 const EXPECTED_HEADER = "国民の祝日・休日月日,国民の祝日・休日名称";
 const DATE_PATTERN = /^\d{4}\/\d{1,2}\/\d{1,2}$/;
 
-interface Holiday {
+export interface Holiday {
   date: string;
   name: string;
 }
 
-interface HolidayDiff {
+export interface HolidayDiff {
   added: Holiday[];
   removed: Holiday[];
   modified: { date: string; from: string; to: string }[];
 }
 
-interface ChangeEntry extends HolidayDiff {
+export interface ChangeEntry extends HolidayDiff {
   timestamp: string;
 }
 
-interface ReleaseEntry {
+export interface ReleaseEntry {
   timestamp: string;
   title: string;
   description: string;
@@ -40,11 +40,11 @@ async function fetchCsv(): Promise<Buffer> {
   return Buffer.from(await response.arrayBuffer());
 }
 
-function convertToUtf8(buffer: Buffer): string {
+export function convertToUtf8(buffer: Buffer): string {
   return iconv.decode(buffer, "Shift_JIS");
 }
 
-function validateHeader(headerLine: string): void {
+export function validateHeader(headerLine: string): void {
   const header = headerLine.trim();
   if (header !== EXPECTED_HEADER) {
     throw new Error(
@@ -61,7 +61,7 @@ function validateDateFormat(date: string, lineNumber: number): void {
   }
 }
 
-function parseCsv(csvContent: string): Holiday[] {
+export function parseCsv(csvContent: string): Holiday[] {
   const lines = csvContent.trim().split("\n");
   const holidays: Holiday[] = [];
 
@@ -91,7 +91,7 @@ function parseCsv(csvContent: string): Holiday[] {
   return holidays;
 }
 
-function createUtf8BomCsv(csvContent: string): Buffer {
+export function createUtf8BomCsv(csvContent: string): Buffer {
   const bom = Buffer.from([0xef, 0xbb, 0xbf]);
   const content = Buffer.from(csvContent, "utf8");
   return Buffer.concat([bom, content]);
@@ -117,7 +117,7 @@ function readJsonSafe<T>(filePath: string, fallback: T): T {
   }
 }
 
-function computeDiff(oldList: Holiday[], newList: Holiday[]): HolidayDiff {
+export function computeDiff(oldList: Holiday[], newList: Holiday[]): HolidayDiff {
   const oldMap = new Map(oldList.map((h) => [h.date, h.name]));
   const newMap = new Map(newList.map((h) => [h.date, h.name]));
 
@@ -141,7 +141,7 @@ function computeDiff(oldList: Holiday[], newList: Holiday[]): HolidayDiff {
   return { added, removed, modified };
 }
 
-function isDiffEmpty(diff: HolidayDiff): boolean {
+export function isDiffEmpty(diff: HolidayDiff): boolean {
   return (
     diff.added.length === 0 &&
     diff.removed.length === 0 &&
@@ -153,17 +153,17 @@ function pad2(n: number): string {
   return String(n).padStart(2, "0");
 }
 
-function toIcalDate(dateStr: string): string {
+export function toIcalDate(dateStr: string): string {
   const [y, m, d] = dateStr.split("/").map(Number);
   return `${y}${pad2(m)}${pad2(d)}`;
 }
 
-function toIsoDate(dateStr: string): string {
+export function toIsoDate(dateStr: string): string {
   const [y, m, d] = dateStr.split("/").map(Number);
   return `${y}-${pad2(m)}-${pad2(d)}`;
 }
 
-function buildIsoCsv(holidays: Holiday[]): string {
+export function buildIsoCsv(holidays: Holiday[]): string {
   const lines = [EXPECTED_HEADER];
   for (const h of holidays) {
     lines.push(`${toIsoDate(h.date)},${h.name}`);
@@ -171,7 +171,7 @@ function buildIsoCsv(holidays: Holiday[]): string {
   return lines.join("\n") + "\n";
 }
 
-function toIcalDatePlusOne(dateStr: string): string {
+export function toIcalDatePlusOne(dateStr: string): string {
   const [y, m, d] = dateStr.split("/").map(Number);
   const next = new Date(Date.UTC(y, m - 1, d + 1));
   return `${next.getUTCFullYear()}${pad2(next.getUTCMonth() + 1)}${pad2(
@@ -179,7 +179,7 @@ function toIcalDatePlusOne(dateStr: string): string {
   )}`;
 }
 
-function isoToIcalDtstamp(iso: string): string {
+export function isoToIcalDtstamp(iso: string): string {
   return iso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
 }
 
@@ -192,7 +192,7 @@ function readExistingDtstamp(filePath: string): string | null {
   return match[1];
 }
 
-function escapeIcalText(s: string): string {
+export function escapeIcalText(s: string): string {
   return s
     .replace(/\\/g, "\\\\")
     .replace(/;/g, "\\;")
@@ -200,7 +200,7 @@ function escapeIcalText(s: string): string {
     .replace(/\n/g, "\\n");
 }
 
-function generateIcal(
+export function generateIcal(
   holidays: Holiday[],
   dtstamp: string,
   calName: string,
@@ -237,7 +237,7 @@ function generateIcal(
   return lines.join("\r\n") + "\r\n";
 }
 
-function escapeXml(s: string): string {
+export function escapeXml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
@@ -252,7 +252,7 @@ function yearOf(dateStr: string): number {
 
 const DOMINANT_YEAR_THRESHOLD = 0.8;
 
-function dominantYear(dates: string[]): number | null {
+export function dominantYear(dates: string[]): number | null {
   if (dates.length === 0) return null;
   const counts = new Map<number, number>();
   for (const d of dates) {
@@ -270,7 +270,7 @@ function dominantYear(dates: string[]): number | null {
   return topCount / dates.length >= DOMINANT_YEAR_THRESHOLD ? topYear : null;
 }
 
-function buildEntryTitle(change: ChangeEntry): string {
+export function buildEntryTitle(change: ChangeEntry): string {
   const segments: string[] = [];
   if (change.added.length) {
     const y = dominantYear(change.added.map((h) => h.date));
@@ -359,7 +359,7 @@ function buildEntryHtml(change: ChangeEntry): string {
   return parts.join("");
 }
 
-function wrapCdata(s: string): string {
+export function wrapCdata(s: string): string {
   return `<![CDATA[${s.replace(/\]\]>/g, "]]]]><![CDATA[>")}]]>`;
 }
 
@@ -413,7 +413,7 @@ function buildReleaseEntryXml(r: ReleaseEntry): string[] {
   ];
 }
 
-function generateAtomFeed(
+export function generateAtomFeed(
   changes: ChangeEntry[],
   releases: ReleaseEntry[]
 ): string {
@@ -548,4 +548,7 @@ async function main() {
   }
 }
 
-main();
+// テストから import された場合は実行しない
+if (process.argv[1] && resolve(process.argv[1]) === import.meta.filename) {
+  main();
+}

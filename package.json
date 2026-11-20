@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "fetch": "tsx scripts/fetch-holidays.ts",
-    "build": "tsx scripts/fetch-holidays.ts"
+    "build": "tsx scripts/fetch-holidays.ts",
+    "test": "node --test \"scripts/**/*.test.ts\""
   },
   "keywords": [
     "japan",
