@@ -1,0 +1,41 @@
+version: 2
+updates:
+  # npm は CI（型チェック・テスト・取得スクリプト実行）で検証できるため major も含めて自動マージ
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "Asia/Tokyo"
+    groups:
+      npm-dependencies:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "Asia/Tokyo"
+    groups:
+      # CI で実行されない action（Pages デプロイ・PR 作成）の major は手動レビュー
+      # ※ 依存は最初にマッチしたグループに入るため、この定義を先に置く
+      # ※ グループ名は ci.yml の自動マージ除外条件と対応させること
+      actions-unverified-major:
+        patterns:
+          - "actions/configure-pages"
+          - "actions/upload-pages-artifact"
+          - "actions/deploy-pages"
+          - "peter-evans/create-pull-request"
+        update-types:
+          - "major"
+      actions:
+        patterns:
+          - "*"
+    commit-message:
+      prefix: "chore(actions)"

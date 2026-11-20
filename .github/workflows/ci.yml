@@ -1,0 +1,68 @@
+name: CI
+
+# すべての PR でテストを実行し、Dependabot の更新はテスト通過後に自動マージする。
+# ただし CI で検証できない action の major 更新（actions-unverified-major グループ）は手動レビュー。
+# 定期的にコミットが発生することで、60日間の無活動による
+# update-holidays (schedule) の自動停止を防ぐ目的も兼ねる。
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: ".node-version"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Test
+        run: npm test
+
+      - name: Verify fetch script
+        run: |
+          set +e
+          npm run fetch
+          EXIT_CODE=$?
+          set -e
+          # 0: 変更あり / 1: 変更なし → いずれもスクリプトは正常動作
+          if [ $EXIT_CODE -ge 2 ]; then
+            echo "::error::fetch script failed (exit code: $EXIT_CODE)"
+            exit $EXIT_CODE
+          fi
+
+  dependabot-auto-merge:
+    needs: test
+    if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
+
+      - name: Merge
+        if: steps.metadata.outputs.dependency-group != 'actions-unverified-major'
+        run: gh pr merge "$PR_URL" --squash --delete-branch
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

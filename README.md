@@ -73,7 +73,13 @@ RFC 5545 準拠の `VCALENDAR`。各祝日は `VALUE=DATE` の終日イベント
 
 ## 自動更新
 
-GitHub Actionsにより毎週月曜日に内閣府のデータをチェックし、差分があれば自動でPRを作成・マージします。
+GitHub Actionsにより毎週月曜日に内閣府のデータをチェックし、差分があれば自動でPRを作成・マージし、GitHub Pagesへデプロイします。
+
+### 依存関係の自動更新
+
+Dependabotが毎週 npm パッケージと GitHub Actions の更新PRを作成します。CI（型チェック・テスト・取得スクリプトの動作確認）に通れば major 更新も含めて自動でマージされます。ただし CI で実行されない action（Pages デプロイ・PR 作成）の major 更新は `actions-unverified-major` グループに分離され、手動でレビューします。
+
+公開リポジトリでは60日間アクティビティがないと schedule 実行が自動で無効化されるため、この定期マージで祝日データ更新の停止を防いでいます。
 
 ### フォーマットチェック
 
@@ -88,19 +94,24 @@ GitHub Actionsにより毎週月曜日に内閣府のデータをチェックし
 
 ## ローカル開発
 
+Node.js 26 以上が必要です（バージョンは `.node-version` で管理）。
+
 ```bash
 # 依存関係のインストール
 npm install
 
 # データの取得・変換
 npm run fetch
+
+# テスト
+npm test
 ```
 
 ## セットアップ手順
 
 1. このリポジトリをフォークまたはクローン
 2. GitHub Pagesを有効化（Settings > Pages > Source: GitHub Actions）
-3. リポジトリ設定でAuto-mergeを有効化（Settings > General > Allow auto-merge）
+3. Actions からのPR作成を許可（Settings > Actions > General > Workflow permissions > Allow GitHub Actions to create and approve pull requests）
 
 ## ライセンス
 
