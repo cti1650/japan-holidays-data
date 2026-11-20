@@ -94,6 +94,8 @@ Dependabotが毎週 npm パッケージと GitHub Actions の更新PRを作成�
 
 ## ローカル開発
 
+Node.js 26 以上が必要です（バージョンは `.node-version` で管理）。
+
 ```bash
 # 依存関係のインストール
 npm install
