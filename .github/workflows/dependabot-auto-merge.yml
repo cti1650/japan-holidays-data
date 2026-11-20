@@ -1,0 +1,55 @@
+name: Dependabot Auto Merge
+
+# Dependabot の minor / patch 更新を検証後に自動マージする。
+# 定期的にコミットが発生することで、60日間の無活動による
+# update-holidays (schedule) の自動停止を防ぐ目的も兼ねる。
+
+on:
+  pull_request:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Verify fetch script
+        run: |
+          set +e
+          npm run fetch
+          EXIT_CODE=$?
+          set -e
+          # 0: 変更あり / 1: 変更なし → いずれもスクリプトは正常動作
+          if [ $EXIT_CODE -ge 2 ]; then
+            echo "::error::fetch script failed (exit code: $EXIT_CODE)"
+            exit $EXIT_CODE
+          fi
+
+      - name: Merge minor / patch updates
+        if: steps.metadata.outputs.update-type != 'version-update:semver-major'
+        run: gh pr merge "$PR_URL" --squash --delete-branch
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
