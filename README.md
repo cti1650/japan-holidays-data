@@ -77,7 +77,7 @@ GitHub Actionsにより毎週月曜日に内閣府のデータをチェックし
 
 ### 依存関係の自動更新
 
-Dependabotが毎週 npm パッケージと GitHub Actions の更新PRを作成します。minor / patch 更新は CI（型チェック・テスト・取得スクリプトの動作確認）に通れば自動でマージされます（major 更新は手動でレビュー）。
+Dependabotが毎週 npm パッケージと GitHub Actions の更新PRを作成します。CI（型チェック・テスト・取得スクリプトの動作確認）に通れば major 更新も含めて自動でマージされます。ただし CI で実行されない action（Pages デプロイ・PR 作成）の major 更新は `actions-unverified-major` グループに分離され、手動でレビューします。
 
 公開リポジトリでは60日間アクティビティがないと schedule 実行が自動で無効化されるため、この定期マージで祝日データ更新の停止を防いでいます。
 
